@@ -77,5 +77,5 @@ ssl.keystore.password=mystorepassword
 EOF
 
 kafka-topics --list --bootstrap-server kafka:9071 --command-config /tmp/client.properties
+kafka-acls --bootstrap-server kafka:9071 --command-config /tmp/client.properties --list --topic mytopic
 ```
-kafka-acls --bootstrap-server kafka:9071 --command-config /tmp/client.properties --list --topic _confluent-metrics
