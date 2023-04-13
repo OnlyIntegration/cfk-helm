@@ -4,8 +4,8 @@ metadata:
   name: mytopic
   namespace: {{ .Values.configurationOverrides.global.namespace }}
 spec:
-  replicas: 1
-  partitionCount: 1
+  replicas: 3
+  partitionCount: 12
   configs:
     cleanup.policy: "delete"
     retention.ms: "100000"

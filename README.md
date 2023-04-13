@@ -51,8 +51,8 @@ kubectl create secret tls ca-pair-sslcerts \
   --cert=$TUTORIAL_HOME/ca.pem \  
   --key=$TUTORIAL_HOME/ca-key.pem -n confluent
 * helm install confluent-core helm-cfk-core -n confluent
+* helm install confluent-topic helm-cfk-topic -n confluent
 * helm install confluent-acl helm-cfk-acls -n confluent
-* helm install confluent-topic helm-cfk-addons -n confluent
 * helm install confluent-addons helm-cfk-addons -n confluent
 
 ### Instructions to tear-down cluster:
