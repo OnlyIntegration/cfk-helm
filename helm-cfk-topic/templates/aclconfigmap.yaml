@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aclconfigmap-topic
+  namespace: {{ .Values.configurationOverrides.global.namespace }}
+data:
+  topicacl.sh: |
+    until zookeeper-shell zookeeper:2181 get /kafka-confluent/cluster/id 2>/dev/null
+    do
+        echo "waiting for zookeeper shell"
+        sleep 10
+    done
+    clusterid=$(zookeeper-shell zookeeper.confluent.svc.cluster.local:2181 get /kafka-confluent/cluster/id | cut -d \" -f 8 | tail -1)
+    namespace=$(getent hosts kafka | tail -1 | awk '{print $NF}' | cut -d '.' -f2)
+    echo "The namespace is $namespace and the cluster id is $clusterid"
+
+    echo "the path mnt contains" 
+    ls /tmp/certs
+
+    cat <<EOF>~/client.properties
+    bootstrap.servers=kafka.confluent.svc.cluster.local:9071
+    security.protocol=SSL
+    ssl.truststore.location=/tmp/certs/truststore.jks
+    ssl.truststore.password=mystorepassword
+    ssl.keystore.location=/tmp/certs/keystore.jks
+    ssl.keystore.password=mystorepassword
+    EOF
+
+    ls ~
+
+    /bin/kafka-acls --bootstrap-server kafka.$namespace.svc.cluster.local:9071 --command-config ~/client.properties \
+    --add \
+    --allow-principal "User:bala" \
+    --operation All \
+    --topic mytopic

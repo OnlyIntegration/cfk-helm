@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: applyacljob-topic
+spec:
+  template:
+    spec:
+      volumes:
+      - name: acl-configmap-volume
+        configMap:
+          name: aclconfigmap-topic
+          defaultMode: 0775
+      - name: kafka-generated-jks
+        secret:
+          secretName: kafka-generated-jks
+          optional: false
+      containers:
+      - name: cp-server
+        image: confluentinc/cp-server:{{ .Values.configurationOverrides.global.imageTag }}
+        command: ['sh', '-c', '/tmp/topicacl.sh']
+        volumeMounts:
+        - name: acl-configmap-volume
+          mountPath: /tmp
+        - name: kafka-generated-jks
+          mountPath: /tmp/certs
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-other-pod
+        image: confluentinc/cp-server:{{ .Values.configurationOverrides.global.imageTag }}
+        args:
+        - /bin/sh
+        - -c
+        - >
+          set -x;
+          until zookeeper-shell zookeeper:2181 get /kafka-confluent/cluster/id 2>/dev/null;
+          do
+            sleep 15;
+          done
+  backoffLimit: 4
